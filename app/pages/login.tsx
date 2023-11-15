@@ -1,65 +1,61 @@
-// Import necessary libraries
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import { useTheme, Link } from '@react-navigation/native';
+import React, { useState } from "react";
+import { View, Text, TextInput, StyleSheet, Vibration } from "react-native";
+import { Link } from "@react-navigation/native";
+import globalStyles from "../common/styles";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 const LoginScreen = () => {
-  const theme = useTheme();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    // Implement your login logic here
-    // Typically, you would make an API request to authenticate the user
-    // For simplicity, we'll just show an alert for successful login
-    if (username === 'your_username' && password === 'your_password') {
-      alert('Login successful');
-    } else {
-      alert('Login failed');
-    }
+    // Login logic here
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Text style={styles.title}>Login</Text>
-      <TextInput
-        placeholder="Username"
-        style={styles.input}
-        onChangeText={(text) => setUsername(text)}
-        value={username}
-      />
-      <TextInput
-        placeholder="Password"
-        style={styles.input}
-        secureTextEntry
-        onChangeText={(text) => setPassword(text)}
-        value={password}
-      />
-      <Button title="Login" onPress={handleLogin} />
-      <Link to="/register">Don't have an account? Register</Link>
+    <View style={globalStyles.body}>
+      <Text style={globalStyles.title}>Log In</Text>
+      <Link style={styles.signup} to="/pages/signup">
+        <Text style={globalStyles.textPrimary}>Sign Up</Text>
+      </Link>
+      <View style={globalStyles.formContainer}>
+        <TextInput
+          placeholder="Email"
+          placeholderTextColor={"#BDBDBD"}
+          style={{ ...globalStyles.input, ...globalStyles.input }}
+          onChangeText={(text) => setEmail(text)}
+          value={email}
+        />
+        <TextInput
+          placeholder="Password"
+          placeholderTextColor={"#BDBDBD"}
+          style={{ ...globalStyles.input, ...globalStyles.input }}
+          secureTextEntry
+          onChangeText={(text) => setPassword(text)}
+          value={password}
+        />
+        <View style={{ width: "80%", marginVertical: 20 }}>
+          <TouchableOpacity onPress={() => handleLogin()}>
+            <View style={{ ...globalStyles.input, ...globalStyles.submitButton }}>
+              <Text style={globalStyles.submitText}>Log In</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+        <Link to="/pages/forgot_password">
+          <Text style={globalStyles.textPrimary}>Forgot your password?</Text>
+        </Link>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  signup: {
+    position: "absolute",
+    top: 80,
+    right: 40,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-  },
-  input: {
-    width: '80%',
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 10,
-    padding: 10,
-  },
-});
+}
+);
 
 export default LoginScreen;
