@@ -53,10 +53,15 @@ const styles = StyleSheet.create({
 		fontFamily: "Inter",
 		fontWeight: "bold",
 	},
-	closeBtn: {
+	headerLeft: {
 		position: "absolute",
 		top: 80,
 		left: 40,
+	},
+	divider: {
+		height: 2,
+		backgroundColor: "#E8E8E8",
+		marginVertical: 7,
 	},
 });
 

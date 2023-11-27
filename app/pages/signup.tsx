@@ -9,6 +9,7 @@ import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 import { ParamListBase } from "@react-navigation/routers";
+import { useFirebase } from "../auth/Firebase";
 
 type Props = {
 	navigation: StackNavigationProp<ParamListBase, "pages/signup">;
@@ -17,7 +18,7 @@ type Props = {
 
 const SignupScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 	//@ts-ignore
-	const app = route.params?.app;
+	const app: FirebaseApp = useFirebase();
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -51,7 +52,7 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 			<Link style={styles.signup} to="/pages/login">
 				<Text style={globalStyles.textPrimary}>Login</Text>
 			</Link>
-			<Link style={globalStyles.closeBtn} to="/pages/login">
+			<Link style={globalStyles.headerLeft} to="/pages/login">
 				<FontAwesome5 name="times" size={16} color="#BDBDBD" />
 			</Link>
 			<View style={globalStyles.formContainer}>

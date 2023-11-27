@@ -4,8 +4,16 @@ import globalStyles from "../common/styles";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Link } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RouteProp } from "@react-navigation/native";
+import { ParamListBase } from "@react-navigation/routers";
 
-const ForgotPasswordScreen = () => {
+type Props = {
+	navigation: StackNavigationProp<ParamListBase, "pages/forgot_password">;
+	route: RouteProp<ParamListBase, "pages/forgot_password">;
+};
+
+const ForgotPasswordScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 	const [email, setEmail] = useState("");
 
 	const handleForgot = () => {
@@ -18,7 +26,7 @@ const ForgotPasswordScreen = () => {
 			<Link style={styles.signup} to="/pages/login">
 				<Text style={globalStyles.textPrimary}>Login</Text>
 			</Link>
-			<Link style={globalStyles.closeBtn} to="/pages/login">
+			<Link style={globalStyles.headerLeft} to="/pages/login">
 				<FontAwesome5 name="times" size={16} color="#BDBDBD" />
 			</Link>
 			<View style={globalStyles.formContainer}>

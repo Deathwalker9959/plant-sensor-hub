@@ -7,6 +7,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 import { ParamListBase } from "@react-navigation/routers";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { useFirebase } from "../auth/Firebase";
 
 type Props = {
 	navigation: StackNavigationProp<ParamListBase, "pages/login">;
@@ -18,8 +19,10 @@ const LoginScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 	const [password, setPassword] = useState("");
 
 	//@ts-ignore
-	const app = route.params?.app;
+	const app: FirebaseApp = useFirebase();
 	const auth = getAuth(app);
+
+	console.log(auth.currentUser)
 
 	const handleLogin = async () => {
 		try {
