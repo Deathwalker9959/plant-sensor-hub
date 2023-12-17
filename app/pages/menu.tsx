@@ -28,7 +28,7 @@ const MenuScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 		navigation.navigate(dest);
 	};
 
-	const menuOptions = ["Home", "Sensors", "Account", "Alerts", "Groups", "Triggers", "Preferences"];
+	const menuOptions = ["Home", "Sensors", "Profile", "Alerts", "Groups", "Triggers", "Preferences"];
 
 	return (
 		<View style={{ ...globalStyles.body, justifyContent: undefined }}>

@@ -7,10 +7,9 @@ import {
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { SplashScreen } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useColorScheme } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { initializeApp } from "firebase/app";
 import { getAuth, getReactNativePersistence, onAuthStateChanged } from "firebase/auth";
 
 /* Pages */
@@ -19,8 +18,9 @@ import SignupScreen from "./pages/signup";
 import ForgotPasswordScreen from "./pages/forgot_password";
 import MenuScreen from "./pages/menu";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FirebaseProvider } from "./auth/Firebase";
-import AccountScreen from "./pages/account";
+import { FirebaseProvider, initializeApp } from "./auth/Firebase";
+import ProfileScreen from "./pages/profile";
+import { getApps } from "firebase/app";
 // import HomeScreen from "./pages/home";
 // import AccountScreen from "./pages/account";
 // import PreferencesScreen from "./pages/preferences";
@@ -44,7 +44,10 @@ export default function RootLayout() {
 		...FontAwesome.font,
 	});
 
-	const [loggedIn, setLoggedIn] = useState(true);
+	const app = initializeApp();
+	const auth = getAuth(app);
+	const [user, setUser] = useState(auth.currentUser);
+	console.log(getApps());
 
 	// Expo Router uses Error Boundaries to catch errors in the navigation tree.
 	useEffect(() => {
@@ -66,17 +69,22 @@ export default function RootLayout() {
 		return (
 			<FirebaseProvider>
 				<ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-					<Stack.Navigator
-						initialRouteName={loggedIn ? "pages/menu" : "pages/login"} // Updated route names
-						screenOptions={{
-							headerShown: false,
-						}}>
-						<Stack.Screen name="pages/login" component={LoginScreen} />
-						<Stack.Screen name="pages/signup" component={SignupScreen} />
-						<Stack.Screen name="pages/forgot_password" component={ForgotPasswordScreen} />
-						<Stack.Screen name="pages/menu" component={MenuScreen} />
-						<Stack.Screen name="pages/account" component={AccountScreen} />
-					</Stack.Navigator>
+				<Stack.Navigator
+                        initialRouteName={user ? "pages/menu" : "pages/login"}
+                        screenOptions={{ headerShown: false }}>
+                        {user ? (
+                            <>
+                                <Stack.Screen name="pages/menu" component={MenuScreen} />
+                                <Stack.Screen name="pages/profile" component={ProfileScreen} />
+                            </>
+                        ) : (
+                            <>
+                                <Stack.Screen name="pages/login" component={LoginScreen} />
+                                <Stack.Screen name="pages/signup" component={SignupScreen} />
+                                <Stack.Screen name="pages/forgot_password" component={ForgotPasswordScreen} />
+                            </>
+                        )}
+                    </Stack.Navigator>
 				</ThemeProvider>
 			</FirebaseProvider>
 		);

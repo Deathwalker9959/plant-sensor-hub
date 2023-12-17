@@ -22,8 +22,6 @@ const LoginScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 	const app: FirebaseApp = useFirebase();
 	const auth = getAuth(app);
 
-	console.log(auth.currentUser)
-
 	const handleLogin = async () => {
 		try {
 			const success = await signInWithEmailAndPassword(auth, email, password);

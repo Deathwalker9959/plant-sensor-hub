@@ -1,10 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { initializeApp as firebaseInitializeApp, FirebaseApp } from "firebase/app";
+import { initializeApp as firebaseInitializeApp, FirebaseApp, getApp, getApps, FirebaseOptions,  } from "firebase/app";
 import { getAuth, getReactNativePersistence, initializeAuth } from "firebase/auth";
 import React, { createContext, useContext } from "react";
 
 const initializeApp = () => {
-	const firebaseConfig = {
+	const firebaseConfig: FirebaseOptions = {
 		apiKey: "AIzaSyAu3Ul7fCPCVwKW0V4dtyrxHyAf5kw54b8",
 		projectId: "plant-sensor-hub",
 		appId: "1:876914927881:web:07fff7e6d5c087075dcbd8",
@@ -12,9 +12,11 @@ const initializeApp = () => {
 		databaseURL: "https://plant-sensor-hub-default-rtdb.europe-west1.firebasedatabase.app/",
 		measurementId: "G-H0PXG97JES",
 	};
-
+	if (getApps().length > 0) return getApps()[0];
 	const app = firebaseInitializeApp(firebaseConfig, "plant-sensor-hub");
-	const auth = getAuth(app).setPersistence(getReactNativePersistence(AsyncStorage));
+	const auth = initializeAuth(app, {
+		persistence: getReactNativePersistence(AsyncStorage),
+	});
 	return app;
 };
 
