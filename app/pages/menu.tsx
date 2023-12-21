@@ -18,10 +18,9 @@ const MenuScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 	//@ts-ignore
 	const app: FirebaseApp = useFirebase();
 	const auth = getAuth(app);
-	const user = auth.currentUser?.email;
 
 	const previousScreen = () => {
-		navigation.goBack();
+		navigation.canGoBack() ? navigation.goBack() : navigation.navigate("pages/home");
 	};
 
 	const navigateTo = (dest: string) => {

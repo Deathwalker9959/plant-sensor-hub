@@ -21,6 +21,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FirebaseProvider, initializeApp } from "./auth/Firebase";
 import ProfileScreen from "./pages/profile";
 import { getApps } from "firebase/app";
+import { UserProvider, useUser } from "./auth/UserContext";
+import HomeScreen from "./pages/home";
+import StackNavigator from "./stacknavigator";
 // import HomeScreen from "./pages/home";
 // import AccountScreen from "./pages/account";
 // import PreferencesScreen from "./pages/preferences";
@@ -45,9 +48,6 @@ export default function RootLayout() {
 	});
 
 	const app = initializeApp();
-	const auth = getAuth(app);
-	const [user, setUser] = useState(auth.currentUser);
-	console.log(getApps());
 
 	// Expo Router uses Error Boundaries to catch errors in the navigation tree.
 	useEffect(() => {
@@ -68,24 +68,11 @@ export default function RootLayout() {
 		const colorScheme = useColorScheme();
 		return (
 			<FirebaseProvider>
-				<ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-				<Stack.Navigator
-                        initialRouteName={user ? "pages/menu" : "pages/login"}
-                        screenOptions={{ headerShown: false }}>
-                        {user ? (
-                            <>
-                                <Stack.Screen name="pages/menu" component={MenuScreen} />
-                                <Stack.Screen name="pages/profile" component={ProfileScreen} />
-                            </>
-                        ) : (
-                            <>
-                                <Stack.Screen name="pages/login" component={LoginScreen} />
-                                <Stack.Screen name="pages/signup" component={SignupScreen} />
-                                <Stack.Screen name="pages/forgot_password" component={ForgotPasswordScreen} />
-                            </>
-                        )}
-                    </Stack.Navigator>
-				</ThemeProvider>
+				<UserProvider>
+					<ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+						<StackNavigator />
+					</ThemeProvider>
+				</UserProvider>
 			</FirebaseProvider>
 		);
 	}

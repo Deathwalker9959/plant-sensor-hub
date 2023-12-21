@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
 import { Link } from "@react-navigation/native";
 import globalStyles from "../common/styles";
@@ -8,6 +8,7 @@ import { RouteProp } from "@react-navigation/native";
 import { ParamListBase } from "@react-navigation/routers";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useFirebase } from "../auth/Firebase";
+import { useUser } from "../auth/UserContext";
 
 type Props = {
 	navigation: StackNavigationProp<ParamListBase, "pages/login">;
@@ -18,14 +19,19 @@ const LoginScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 
+	const { user, setUser } = useUser();
+
 	//@ts-ignore
 	const app: FirebaseApp = useFirebase();
 	const auth = getAuth(app);
 
 	const handleLogin = async () => {
 		try {
-			const success = await signInWithEmailAndPassword(auth, email, password);
-			if (success) navigation.navigate("pages/menu");
+			const userCredential = await signInWithEmailAndPassword(auth, email, password);
+			if (userCredential) {
+				const userObject = userCredential.user;
+				setUser(userObject); // Now you're setting the actual user object
+			}
 		} catch (error) {
 			if (typeof error === "string") {
 				Alert.alert("Error", error);
