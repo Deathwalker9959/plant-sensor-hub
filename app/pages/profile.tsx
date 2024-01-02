@@ -8,10 +8,11 @@ import { RouteProp } from "@react-navigation/native";
 import { ParamListBase } from "@react-navigation/routers";
 import globalStyles from "../common/styles";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { useFirebase } from "../auth/Firebase";
-import Switch from "../components/switch";
-import TextEdit from "../components/textedit";
-import RadioGroup, { RadioOption } from "../components/radiogroup";
+import { useFirebase } from "../providers/auth/Firebase";
+import Switch from "../components/Switch";
+import TextEdit from "../components/TextEdit";
+import RadioGroup, { RadioOption } from "../components/RadioGroup";
+import { PreferencesData, useData } from "../providers/data/DataContext";
 
 type Props = {
 	navigation: StackNavigationProp<ParamListBase, "pages/profile">;
@@ -25,29 +26,30 @@ const ProfileScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 	const db = getDatabase(app);
 	const user = auth.currentUser;
 	const [selectedOption, setSelectedOption] = useState("");
+	const data = useData();
 
-	const [temperaturePreference, setTemperaturePreference] = useState("Celsius");
-	const [clockPreference, setClockPreference] = useState("12 Hour");
-	const [alertsPreference, setAlertsPreference] = useState(false);
+	const [preferences, setPreferences] = useState<PreferencesData | null>(
+		data?.preferences?.preferences ?? null,
+	);
 
 	const temperatureOptions: RadioOption[] = [
 		{
 			label: "Celsius",
-			value: "Celsius",
+			value: "C",
 		},
 		{
 			label: "Fahrenheit",
-			value: "Fahrenheit",
+			value: "F",
 		},
 	];
 	const clockOptions: RadioOption[] = [
 		{
 			label: "12 Hour",
-			value: "12",
+			value: 0,
 		},
 		{
 			label: "24 Hour",
-			value: "24",
+			value: 1,
 		},
 	];
 	const alertsOptions: RadioOption[] = [
@@ -68,33 +70,6 @@ const ProfileScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 	const goToMenu = () => {
 		navigation.navigate("pages/menu");
 	};
-
-	const updateFirestore = (settingName: string, value: any) => {
-		if (!user?.uid) return; // No user logged in
-
-		const updates: any = {};
-		updates[`users/${user.uid}/${settingName}`] = value;
-		update(ref(db), updates);
-	};
-
-	const getUserPreferences = () => {
-		if (!user?.uid) return; // No user logged in
-
-		//get data from preferences
-		get(ref(db, `users/${user.uid}`)).then((snapshot) => {
-			console.log("snapshot", snapshot.val());
-			if (snapshot.exists()) {
-				const data = snapshot.val();
-				setTemperaturePreference(data.temperatureOptions);
-				setClockPreference(data.clockOptions);
-				setAlertsPreference(data.alertsOptions);
-			} else {
-				console.log("No data available");
-			}
-		});
-	};
-
-	getUserPreferences();
 
 	return (
 		<View style={{ ...globalStyles.body, justifyContent: undefined }}>
@@ -139,18 +114,24 @@ const ProfileScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 							<RadioGroup
 								options={temperatureOptions}
 								fieldName="Temperature Units"
-								onValueChange={(value) => updateFirestore("temperatureOptions", value)}
-								preselected={temperaturePreference}></RadioGroup>
+								onValueChange={(value) =>
+									data?.preferences?.updatePreference("temperatureOptions", value)
+								}
+								preselected={preferences?.temperatureOptions ?? "C"}></RadioGroup>
 							<RadioGroup
 								options={clockOptions}
 								fieldName="Clock"
-								onValueChange={(value) => updateFirestore("clockOptions", value)}
-								preselected={clockPreference}></RadioGroup>
+								onValueChange={(value) =>
+									data?.preferences?.updatePreference("clockOptions", value)
+								}
+								preselected={preferences?.clockOptions ?? 0}></RadioGroup>
 							<RadioGroup
 								options={alertsOptions}
 								fieldName="Alerts"
-								onValueChange={(value) => updateFirestore("alertsOptions", value)}
-								preselected={alertsPreference}></RadioGroup>
+								onValueChange={(value) =>
+									data?.preferences?.updatePreference("alertsOptions", value)
+								}
+								preselected={preferences?.alertsOptions ?? false}></RadioGroup>
 						</View>
 					)}
 				</View>

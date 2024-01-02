@@ -9,7 +9,7 @@ import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 import { ParamListBase } from "@react-navigation/routers";
-import { useFirebase } from "../auth/Firebase";
+import { useFirebase } from "../providers/auth/Firebase";
 
 type Props = {
 	navigation: StackNavigationProp<ParamListBase, "pages/signup">;

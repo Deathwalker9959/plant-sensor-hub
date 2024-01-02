@@ -1,6 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { initializeApp as firebaseInitializeApp, FirebaseApp, getApp, getApps, FirebaseOptions,  } from "firebase/app";
-import { getAuth, getReactNativePersistence, initializeAuth } from "firebase/auth";
+import {
+	initializeApp as firebaseInitializeApp,
+	FirebaseApp,
+	getApps,
+	FirebaseOptions,
+} from "firebase/app";
+import { getReactNativePersistence, initializeAuth } from "firebase/auth";
 import React, { createContext, useContext } from "react";
 
 const initializeApp = () => {
@@ -14,7 +19,9 @@ const initializeApp = () => {
 	};
 	if (getApps().length > 0) return getApps()[0];
 	const app = firebaseInitializeApp(firebaseConfig, "plant-sensor-hub");
-	const auth = initializeAuth(app, {
+
+	// If running in a web browser, use localStorage for persistence
+	initializeAuth(app, {
 		persistence: getReactNativePersistence(AsyncStorage),
 	});
 	return app;

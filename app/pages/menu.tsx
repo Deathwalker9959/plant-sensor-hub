@@ -7,7 +7,9 @@ import { RouteProp } from "@react-navigation/native";
 import { ParamListBase } from "@react-navigation/routers";
 import globalStyles from "../common/styles";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { useFirebase } from "../auth/Firebase";
+import { useFirebase } from "../providers/auth/Firebase";
+import { deleteItemAsync } from "expo-secure-store";
+import { useUser } from "../providers/auth/UserContext";
 
 type Props = {
 	navigation: StackNavigationProp<ParamListBase, "pages/menu">;
@@ -18,6 +20,7 @@ const MenuScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 	//@ts-ignore
 	const app: FirebaseApp = useFirebase();
 	const auth = getAuth(app);
+	const {user , setUser} = useUser();
 
 	const previousScreen = () => {
 		navigation.canGoBack() ? navigation.goBack() : navigation.navigate("pages/home");
@@ -27,12 +30,22 @@ const MenuScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 		navigation.navigate(dest);
 	};
 
+	const logout = async () => {
+		auth.signOut();
+		setUser(undefined);
+		deleteItemAsync("user");
+	};
+
 	const menuOptions = ["Home", "Sensors", "Profile", "Alerts", "Groups", "Triggers", "Preferences"];
 
 	return (
 		<View style={{ ...globalStyles.body, justifyContent: undefined }}>
 			<TouchableOpacity style={globalStyles.headerLeft} onPress={previousScreen}>
 				<Text style={globalStyles.textPrimary}>Back</Text>
+			</TouchableOpacity>
+
+			<TouchableOpacity style={styles.headerRight} onPress={logout}>
+				<Text style={globalStyles.textPrimary}>Log Out</Text>
 			</TouchableOpacity>
 
 			<Text style={globalStyles.title}>Menu</Text>
@@ -54,6 +67,11 @@ const MenuScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 };
 
 const styles = StyleSheet.create({
+	headerRight: {
+			position: "absolute",
+			top: 80,
+			right: 40,
+	},
 	menuButton: {
 		flexDirection: "row",
 
@@ -61,10 +79,8 @@ const styles = StyleSheet.create({
 	},
 	menuButtonText: {
 		color: "black",
-
 		fontSize: 16,
 		fontFamily: "Inter",
-
 		fontWeight: "600",
 	},
 });

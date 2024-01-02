@@ -1,4 +1,6 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
 	DarkTheme,
 	DefaultTheme,
@@ -10,25 +12,13 @@ import { SplashScreen } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { useColorScheme } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { getAuth, getReactNativePersistence, onAuthStateChanged } from "firebase/auth";
 
 /* Pages */
-import LoginScreen from "./pages/login";
-import SignupScreen from "./pages/signup";
-import ForgotPasswordScreen from "./pages/forgot_password";
-import MenuScreen from "./pages/menu";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FirebaseProvider, initializeApp } from "./auth/Firebase";
-import ProfileScreen from "./pages/profile";
-import { getApps } from "firebase/app";
-import { UserProvider, useUser } from "./auth/UserContext";
-import HomeScreen from "./pages/home";
-import StackNavigator from "./stacknavigator";
-// import HomeScreen from "./pages/home";
-// import AccountScreen from "./pages/account";
-// import PreferencesScreen from "./pages/preferences";
-// import GroupsScreen from "./pages/groups";
-// import TriggersScreen from "./pages/triggers";
+import { FirebaseProvider, initializeApp } from "./providers/auth/Firebase";
+import { UserProvider } from "./providers/auth/UserContext";
+import StackNavigator from "./StackNavigator";
+import { SensorProvider } from "./providers/data/SensorFactory";
+import { DataProvider } from "./providers/data/DataContext";
 
 export {
 	// Catch any errors thrown by the Layout component.
@@ -45,6 +35,8 @@ export default function RootLayout() {
 		SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
 		Inter: require("../assets/fonts/Inter.ttf"),
 		...FontAwesome.font,
+		...MaterialIcons.font,
+		...MaterialCommunityIcons.font,
 	});
 
 	const app = initializeApp();

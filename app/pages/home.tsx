@@ -1,11 +1,20 @@
-import React from "react";
-import { View, ScrollView, StyleSheet, Text } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, ScrollView, StyleSheet, Text, Image } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 import { ParamListBase } from "@react-navigation/routers";
 import globalStyles from "../common/styles";
-import { useFirebase } from "../auth/Firebase";
+import { useFirebase } from "../providers/auth/Firebase";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import SensorBlock from "../components/SensorBlock";
+import {
+	SensorData,
+	SensorValue,
+	getSensorData,
+	useSensorData,
+} from "../providers/data/SensorFactory";
+import { FirebaseApp } from "firebase/app";
+import { useData } from "../providers/data/DataContext";
 
 type Props = {
 	navigation: StackNavigationProp<ParamListBase, "pages/home">;
@@ -13,13 +22,31 @@ type Props = {
 };
 
 const HomeScreen: React.FC<Props> = ({ navigation, route }: Props) => {
-	// @ts-ignore
-	const app: FirebaseApp = useFirebase();
+	const app: FirebaseApp = useFirebase()!;
+	const data = useData();
+
+	const [sensorData, setSensorData] = useState<SensorData[]>(useSensorData());
+	const [sensorDataLoaded, setSensorDataLoaded] = useState<boolean>(false);
+
+	const navigateToSensorView = (sensorId: number, sensorData?: SensorValue[]) => {
+		data?.selectedSensor?.setSelectedSensor({
+			selectedSensor: sensorId,
+		});
+		navigation.navigate("pages/sensor_view", { sensorId });
+	};
+
+	const previousScreen = () => {
+		navigation.canGoBack() ? navigation.goBack() : navigation.navigate("pages/home");
+	};
 
 	return (
-		<ScrollView style={{ flex: 1 }}>
+		<ScrollView style={{ flex: 1, backgroundColor: globalStyles.body.backgroundColor }}>
 			<View style={styles.headerRow}>
+				<TouchableOpacity containerStyle={styles.space33} onPress={previousScreen}>
+					<Text style={{...globalStyles.textPrimary}}>Back</Text>
+				</TouchableOpacity>
 				<Text style={{ ...globalStyles.title, ...styles.title }}>Sensors</Text>
+				<View style={styles.space33}></View>
 			</View>
 			<View style={styles.navBarRow}>
 				<TouchableOpacity style={styles.menuButton}>
@@ -32,7 +59,19 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 					<Text style={styles.menuButtonText}>Sensors</Text>
 				</TouchableOpacity>
 			</View>
-			<View style={styles.bodyRow}>{/* Body Content Here */}</View>
+			<View style={styles.bodyRow}>
+				{sensorData.map((v, i) => (
+					<SensorBlock
+						key={i}
+						sensorId={v.id ?? -1}
+						sensorName={v.title ?? "N/A"}
+						sensorUnit={v.unit ?? "N/A"}
+						sensorValue={v.values?.[0]?.value.toString() ?? "N/A"}
+						sensorHistoricalData={v.values}
+						onPress={navigateToSensorView}
+					/>
+				))}
+			</View>
 		</ScrollView>
 	);
 };
@@ -41,29 +80,44 @@ const styles = StyleSheet.create({
 	title: {
 		position: undefined,
 		top: undefined,
+		justifyContent: 'center',
+		alignItems: 'center',
+		alignSelf: 'center',
 	},
 	headerRow: {
 		...globalStyles.body,
 		flexDirection: "row",
-		justifyContent: "center",
+		justifyContent: 'space-between',
 		height: "auto",
 		paddingTop: 50,
 		paddingBottom: 20,
+		paddingHorizontal: 20,
 	},
 	navBarRow: {
 		...globalStyles.body,
 		flexDirection: "row",
 		justifyContent: "space-between",
 		height: "auto",
-		paddingHorizontal: 10,
-		paddingVertical: 10,
+		paddingHorizontal: 20,
+		paddingTop: 10,
+		paddingBottom: 20,
+	},
+	bodyCol: {
+		...globalStyles.body,
+		flexDirection: "column",
+		justifyContent: "space-between",
+		alignItems: undefined,
 	},
 	bodyRow: {
 		...globalStyles.body,
 		flexDirection: "row",
 		justifyContent: "space-between",
+		alignItems: undefined,
+		paddingHorizontal: 20,
+		flexWrap: "wrap",
+		height: "100%",
+		marginBottom: undefined,
 	},
-	// Existing styles
 	menuButton: {
 		flexDirection: "row",
 		alignItems: "center",
@@ -85,6 +139,9 @@ const styles = StyleSheet.create({
 		fontWeight: "600",
 		textAlign: "center",
 		width: "100%",
+	},
+	space33: {
+		width: "33.33%",
 	},
 });
 
