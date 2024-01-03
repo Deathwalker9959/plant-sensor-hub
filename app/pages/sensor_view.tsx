@@ -84,6 +84,8 @@ function aggregateSensorData(
 		return new Date(a[0]).getTime() - new Date(b[0]).getTime();
 	};
 
+	const isNumberValues = sensorData?.every((v) => typeof v.value === "number");
+
 	if (timeSpan === "Hourly") {
 		// For Hourly, take the first 24 values
 		return sensorData
@@ -95,7 +97,9 @@ function aggregateSensorData(
 			}))
 			.sort(sortByTimestamp); // Sort hourly data
 	} else {
-		const aggregatedData: { [key: string]: { totalValue: number; count: number } } = {};
+		const aggregatedData: {
+			[key: string]: { totalValue: number; count: number; hoursOn: number; hoursOff: number };
+		} = {};
 
 		sensorData.forEach((item) => {
 			const date = new Date(item.date);
@@ -115,20 +119,31 @@ function aggregateSensorData(
 			}
 
 			if (!aggregatedData[periodKey]) {
-				aggregatedData[periodKey] = { totalValue: 0, count: 0 };
+				aggregatedData[periodKey] = { totalValue: 0, count: 0, hoursOn: 0, hoursOff: 0 };
 			}
-			aggregatedData[periodKey].totalValue += item.value;
-			aggregatedData[periodKey].count++;
+
+			if (isNumberValues) {
+				aggregatedData[periodKey].totalValue += item.value;
+				aggregatedData[periodKey].count++;
+			} else {
+				if (item.value === "open") {
+					aggregatedData[periodKey].hoursOn++;
+				} else {
+					aggregatedData[periodKey].hoursOff++;
+				}
+			}
 		});
 
 		// Sorting and mapping
-		return Object.entries(aggregatedData).map(([timestamp, { totalValue, count }]) => {
-			return {
-				timestamp,
-				value: totalValue / count,
-				label: formatDateLabel(timestamp, timeSpan),
-			};
-		}) as itemType[];
+		return Object.entries(aggregatedData).map(
+			([timestamp, { totalValue, count, hoursOff, hoursOn }]) => {
+				return {
+					timestamp,
+					value: isNumberValues ? totalValue / count : `On:${hoursOn}h Off:${hoursOff}h`,
+					label: formatDateLabel(timestamp, timeSpan),
+				};
+			},
+		) as itemType[];
 	}
 }
 
@@ -145,6 +160,8 @@ const MenuScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 	const previousScreen = () => {
 		navigation.canGoBack() ? navigation.goBack() : navigation.navigate("pages/home");
 	};
+
+	const isNumberValues = sensorData?.values?.every((v) => typeof v.value === "number");
 
 	let barData: itemType[] = aggregateSensorData(sensorData!.values!, dataInterval).map((v, i) => ({
 		value: v.value,
@@ -183,19 +200,23 @@ const MenuScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 				</Text>
 			</View>
 			<View style={styles.bodyRow}>
-				<View style={styles.graph}>
-					<BarChart
-						isAnimated={true}
-						width={Dimensions.get("window").width}
-						barWidth={barWidth}
-						barBorderRadius={4}
-						frontColor="lightgray"
-						data={barData}
-						yAxisThickness={0}
-						xAxisThickness={0}
-						spacing={(Dimensions.get("window").width - 40) / barData.length - barWidth}
-					/>
-				</View>
+				{isNumberValues ? (
+					<View style={styles.graph}>
+						<BarChart
+							isAnimated={true}
+							width={Dimensions.get("window").width}
+							barWidth={barWidth}
+							barBorderRadius={4}
+							frontColor="lightgray"
+							data={barData}
+							yAxisThickness={0}
+							xAxisThickness={0}
+							spacing={(Dimensions.get("window").width - 40) / barData.length - barWidth}
+						/>
+					</View>
+				) : (
+					<></>
+				)}
 				<View style={styles.graphSelect}>
 					{["Hourly", "Daily", "Weekly", "Monthly"].map((v, i) => (
 						<TouchableOpacity key={i} style={{ flexDirection: "row" }}>
@@ -234,7 +255,7 @@ const MenuScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 									</Text>
 								</View>
 								<Text style={{ ...globalStyles.textPrimary, color: "black" }}>
-									{v.value.toFixed(3)}
+									{isNumberValues ? v.value.toFixed(3) : v.value}
 								</Text>
 							</View>
 							<View style={globalStyles.divider} />
