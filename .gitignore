@@ -27,6 +27,9 @@ yarn-error.*
 # macOS
 .DS_Store
 *.pem
+android
+%ProgramData%
+.editorconfig
 
 # local env files
 .env*.local

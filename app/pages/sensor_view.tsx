@@ -8,8 +8,6 @@ import { ParamListBase } from "@react-navigation/routers";
 import globalStyles from "../common/styles";
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { useFirebase } from "../providers/auth/Firebase";
-import { deleteItemAsync } from "expo-secure-store";
-import { useUser } from "../providers/auth/UserContext";
 import { SensorValue, useSensorData } from "../providers/data/SensorFactory";
 import { useData } from "../providers/data/DataContext";
 import { BarChart } from "react-native-gifted-charts";
@@ -61,7 +59,7 @@ function aggregateSensorData(
 				weekStart.setDate(weekStart.getDate() + (week - 1) * 7 - weekStart.getDay() + 1);
 				const weekEnd = new Date(weekStart);
 				weekEnd.setDate(weekEnd.getDate() + 6);
-				return `${formatDateString(weekStart)}-${formatDateString(weekEnd)}`;
+				return 
 			}
 			case "Monthly":
 				return `${new Date(timestamp).getMonth() + 1}/${new Date(timestamp).getFullYear()}`;
@@ -80,8 +78,8 @@ function aggregateSensorData(
 	} // No slicing needed for 'Hourly' as it takes the first 24 values directly
 
 	// Sorting function for timestamps
-	const sortByTimestamp = (a: [string, any], b: [string, any]) => {
-		return new Date(a[0]).getTime() - new Date(b[0]).getTime();
+	const sortByTimestamp = (a: {timestamp: Date}, b: {timestamp: Date}) => {
+		return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
 	};
 
 	const isNumberValues = sensorData?.every((v) => typeof v.value === "number");
@@ -123,7 +121,7 @@ function aggregateSensorData(
 			}
 
 			if (isNumberValues) {
-				aggregatedData[periodKey].totalValue += item.value;
+				aggregatedData[periodKey].totalValue += parseFloat(String(item.value));
 				aggregatedData[periodKey].count++;
 			} else {
 				if (item.value === "open") {
@@ -147,7 +145,7 @@ function aggregateSensorData(
 	}
 }
 
-const MenuScreen: React.FC<Props> = ({ navigation, route }: Props) => {
+const SensorView: React.FC<Props> = ({ navigation, route }: Props) => {
 	//@ts-ignore
 	const app: FirebaseApp = useFirebase();
 	const { sensorId } = route.params as { sensorId: number };
@@ -160,6 +158,16 @@ const MenuScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 	const previousScreen = () => {
 		navigation.canGoBack() ? navigation.goBack() : navigation.navigate("pages/home");
 	};
+
+	const deleteSensor = () => {
+
+		const activeSensors = data?.dashboardPreferences?.dashboardPreferences?.activeIds ?? [];
+
+		data?.dashboardPreferences?.updateDashboardPreference("activeIds", [
+			Array.from(activeSensors).filter((v) => v !== sensorId),
+		]);
+		previousScreen();
+	}
 
 	const isNumberValues = sensorData?.values?.every((v) => typeof v.value === "number");
 
@@ -198,12 +206,15 @@ const MenuScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 					ellipsizeMode="clip">
 					{sensorData?.title}
 				</Text>
+				<TouchableOpacity style={styles.dockRight} onPress={deleteSensor}>
+					<FontAwesome5 name="trash-alt" size={16} color="#BDBDBD" />
+				</TouchableOpacity>
 			</View>
 			<View style={styles.bodyRow}>
 				{isNumberValues ? (
 					<View style={styles.graph}>
 						<BarChart
-							isAnimated={true}
+							// isAnimated={true}
 							width={Dimensions.get("window").width}
 							barWidth={barWidth}
 							barBorderRadius={4}
@@ -231,7 +242,9 @@ const MenuScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 						</TouchableOpacity>
 					))}
 				</View>
-				<ScrollView>
+				<ScrollView style={{
+					marginBottom: 100,
+				}}>
 					{barData.map((v, i) => (
 						<>
 							<View
@@ -290,6 +303,11 @@ const styles = StyleSheet.create({
 		left: 20,
 		top: 55,
 	},
+	dockRight: {
+		position: "absolute",
+		right: 20,
+		top: 55,
+	},
 	graph: {
 		width: "100%",
 		height: 200,
@@ -318,4 +336,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default MenuScreen;
+export default SensorView;

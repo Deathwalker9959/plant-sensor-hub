@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, ScrollView, StyleSheet, Text, Image } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
@@ -26,7 +26,22 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 	const data = useData();
 
 	const [sensorData, setSensorData] = useState<SensorData[]>(useSensorData());
-	const [sensorDataLoaded, setSensorDataLoaded] = useState<boolean>(false);
+	const dashboardPreferences = useRef<Set<number>>(
+		data?.dashboardPreferences?.dashboardPreferences?.activeIds || new Set<number>(),
+	);
+
+	const [filteredSensorData, setFilteredSensorData] = useState<SensorData[]>([]);
+
+	useEffect(() => {
+		dashboardPreferences.current = data?.dashboardPreferences?.dashboardPreferences?.activeIds || new Set<number>();
+		Array.from(dashboardPreferences.current).length > 0
+			? setFilteredSensorData(
+					sensorData.filter((sensor) => {
+						return Array.from(dashboardPreferences.current.values()).includes(sensor.id);
+					}),
+			  )
+			: [];
+	}, [data]);
 
 	const navigateToSensorView = (sensorId: number, sensorData?: SensorValue[]) => {
 		data?.selectedSensor?.setSelectedSensor({
@@ -39,28 +54,44 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 		navigation.canGoBack() ? navigation.goBack() : navigation.navigate("pages/home");
 	};
 
+	const handleSensorAdd = () => {
+		navigation.navigate("pages/sensor_add");
+	};
+
+	const navigateToSensorList = () => {
+		navigation.navigate("pages/sensor_list_view");
+	};
+
+	const navigateToGroups = () => {
+		navigation.navigate("pages/groups");
+	};
+
+	const navigateToAlerts = () => {
+		navigation.navigate("pages/alerts")
+	}
+
 	return (
 		<ScrollView style={{ flex: 1, backgroundColor: globalStyles.body.backgroundColor }}>
 			<View style={styles.headerRow}>
 				<TouchableOpacity containerStyle={styles.space33} onPress={previousScreen}>
-					<Text style={{...globalStyles.textPrimary}}>Back</Text>
+					<Text style={{ ...globalStyles.textPrimary }}>Back</Text>
 				</TouchableOpacity>
 				<Text style={{ ...globalStyles.title, ...styles.title }}>Sensors</Text>
 				<View style={styles.space33}></View>
 			</View>
 			<View style={styles.navBarRow}>
-				<TouchableOpacity style={styles.menuButton}>
+				<TouchableOpacity style={styles.menuButton} onPress={navigateToGroups}>
 					<Text style={styles.menuButtonText}>Groups</Text>
 				</TouchableOpacity>
-				<TouchableOpacity style={styles.menuButton}>
-					<Text style={styles.menuButtonText}>Triggers</Text>
+				<TouchableOpacity style={styles.menuButton} onPress={navigateToAlerts}>
+					<Text style={styles.menuButtonText}>Alerts</Text>
 				</TouchableOpacity>
-				<TouchableOpacity style={styles.menuButton}>
+				<TouchableOpacity style={styles.menuButton} onPress={navigateToSensorList}>
 					<Text style={styles.menuButtonText}>Sensors</Text>
 				</TouchableOpacity>
 			</View>
 			<View style={styles.bodyRow}>
-				{sensorData.map((v, i) => (
+				{filteredSensorData.map((v, i) => (
 					<SensorBlock
 						key={i}
 						sensorId={v.id ?? -1}
@@ -71,6 +102,19 @@ const HomeScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 						onPress={navigateToSensorView}
 					/>
 				))}
+				{sensorData &&
+				sensorData.filter((sensor) => {
+					return !Array.from(dashboardPreferences.current.values()).includes(sensor.id);
+				}).length > 0 ? (
+					<SensorBlock
+						sensorId={-1}
+						sensorUnit="plus"
+						showSensorUnit={false}
+						sensorName={"Create Sensor"}
+						sensorHistoricalData={[]}
+						onPress={handleSensorAdd}
+					/>
+				) : null}
 			</View>
 		</ScrollView>
 	);
@@ -80,14 +124,14 @@ const styles = StyleSheet.create({
 	title: {
 		position: undefined,
 		top: undefined,
-		justifyContent: 'center',
-		alignItems: 'center',
-		alignSelf: 'center',
+		justifyContent: "center",
+		alignItems: "center",
+		alignSelf: "center",
 	},
 	headerRow: {
 		...globalStyles.body,
 		flexDirection: "row",
-		justifyContent: 'space-between',
+		justifyContent: "space-between",
 		height: "auto",
 		paddingTop: 50,
 		paddingBottom: 20,

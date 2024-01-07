@@ -9,9 +9,10 @@ import { SensorValue } from "../providers/data/SensorFactory";
 interface SensorBlockProps {
 	sensorId: number;
 	sensorName: string;
-	sensorValue: string;
+	sensorValue?: string;
 	sensorUnit?: string;
 	sensorHistoricalData?: SensorValue[];
+	showSensorUnit?: boolean;
 	onPress?: (sensorId: number, sensorData?: SensorValue[]) => void;
 }
 
@@ -32,6 +33,9 @@ const mapUnitToIcon = (unit: string): string => {
 		case "℃": {
 			return "thermometer";
 		}
+		case "℉": {
+			return "thermometer";
+		}
 		case "V": {
 			return "power";
 		}
@@ -47,6 +51,9 @@ const mapUnitToIcon = (unit: string): string => {
 		case "Watt": {
 			return "flash";
 		}
+		case "plus": {
+			return "plus";
+		}
 		default: {
 			return "weather-sunny";
 		}
@@ -59,15 +66,22 @@ const SensorBlock: React.FC<SensorBlockProps> = ({
 	sensorValue,
 	sensorUnit,
 	sensorHistoricalData,
+	showSensorUnit,
 	onPress,
 }) => {
 	const data = useData();
+	const temperatureOption = data?.preferences?.preferences?.temperatureOptions
 
 	const handleSensorPress = () => {
 		if (onPress) {
 			onPress(sensorId, sensorHistoricalData);
 		}
 	};
+
+	if (temperatureOption == "F" && sensorUnit == "℃") {
+		sensorValue = ((parseFloat(sensorValue!) * 9) / 5 + 32).toFixed(2);
+		sensorUnit = "℉";
+	}
 
 	return (
 		<TouchableOpacity style={styles.container} onPress={handleSensorPress}>
@@ -82,7 +96,7 @@ const SensorBlock: React.FC<SensorBlockProps> = ({
 
 			<Text style={styles.sensorValue}>{sensorValue}</Text>
 
-			<Text style={styles.sensorUnit}>{sensorUnit}</Text>
+			{showSensorUnit !== false ? (<Text style={styles.sensorUnit}>{sensorUnit}</Text>) : null}
 		</TouchableOpacity>
 	);
 };

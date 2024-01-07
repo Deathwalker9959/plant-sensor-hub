@@ -36,7 +36,7 @@ const MenuScreen: React.FC<Props> = ({ navigation, route }: Props) => {
 		deleteItemAsync("user");
 	};
 
-	const menuOptions = ["Home", "Sensors", "Profile", "Alerts", "Groups", "Triggers", "Preferences"];
+	const menuOptions = ["Home", "Profile", "Alerts", "Groups"];
 
 	return (
 		<View style={{ ...globalStyles.body, justifyContent: undefined }}>
