@@ -1,5 +1,7 @@
 import { ReactNode, createContext, useContext } from "react";
 
+// Mock data for sensors used for development and testing purposes
+// Each sensor has an ID, unit, title, and either allowableValues or minMax to define its data range
 export type SensorData = {
 	id: number;
 	title: string;
@@ -260,6 +262,11 @@ const sensors: SensorData[] = [
 	},
 ];
 
+// Function to generate mock sensor data
+// - If allowableValues is defined, a random value is picked from the list
+// - If minMax is defined, a random value is generated within the range
+// - Default value is 0 if neither is defined
+// Historical data is generated for the past 90 days, with hourly intervals
 export const getSensorData = (): SensorData[] => {
 	return sensors.map((sensor) => {
 		const values = Array.from({ length: 24 * 90 }, (_, index) => {

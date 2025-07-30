@@ -6,6 +6,10 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { useData } from "../providers/data/DataContext";
 import { SensorValue } from "../providers/data/SensorFactory";
 
+// SensorBlock.tsx
+// Displays sensor information including name, value, and unit.
+// Maps sensor units to appropriate icons and supports click actions.
+
 interface SensorBlockProps {
 	sensorId: number;
 	sensorName: string;

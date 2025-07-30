@@ -1,5 +1,9 @@
 import { ScrollViewStyleReset } from "expo-router/html";
 
+// +html.tsx
+// This file is used for configuring the root HTML for web pages during static rendering.
+// It includes meta tags, viewport settings, and global styles.
+
 // This file is web-only and used to configure the root HTML for every
 // web page during static rendering.
 // The contents of this function only run in Node.js environments and

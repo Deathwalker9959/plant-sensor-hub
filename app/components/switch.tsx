@@ -1,3 +1,7 @@
+// Switch.tsx
+// A customizable switch component for toggling between options.
+// Animates the selected option and supports dynamic styling.
+
 import React, { useState, useRef, useEffect } from "react";
 import { View, Text, TouchableOpacity, Animated, Dimensions } from "react-native";
 import { StyleSheet } from "react-native";

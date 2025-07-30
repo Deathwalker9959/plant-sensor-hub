@@ -30,6 +30,10 @@ SplashScreen.preventAutoHideAsync();
 
 const Stack = createStackNavigator();
 
+// RootLayout.tsx
+// This file sets up the main layout for the application, including navigation and providers.
+// It initializes fonts, themes, and context providers for the app.
+
 export default function RootLayout() {
 	const [loaded, error] = useFonts({
 		SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),

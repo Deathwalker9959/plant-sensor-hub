@@ -1,3 +1,7 @@
+// styles.tsx
+// This file contains shared styles for the application, including layout and form elements.
+// It uses React Native's StyleSheet to define reusable style objects.
+
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({

@@ -1,3 +1,7 @@
+// TextEdit.tsx
+// A text input component with editing capabilities.
+// Supports initial value, placeholder, and triggers a callback on text change.
+
 import React, { useState, useRef, useEffect } from "react";
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, TextInputProps } from "react-native";
 import globalStyles from "../common/styles";

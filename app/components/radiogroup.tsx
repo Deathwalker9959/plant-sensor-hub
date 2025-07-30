@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import globalStyles from '../common/styles';
 
+// A reusable radio group component for selecting options.
+// Supports preselection and triggers a callback on value change.
+
 export interface RadioOption {
   label: string;
   value: any;

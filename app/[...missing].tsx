@@ -1,3 +1,7 @@
+// NotFoundScreen.tsx
+// This file defines a fallback screen for routes that do not exist.
+// It provides a user-friendly message and a link to navigate back to the home screen.
+
 import { Link, Stack } from "expo-router";
 import { StyleSheet } from "react-native";
 

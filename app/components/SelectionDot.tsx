@@ -1,3 +1,7 @@
+// SelectionDot.tsx
+// Custom selection dot component for graphs.
+// Animates the dot size based on its active state.
+
 /**
  * An example for a custom SelectionDot component.
  *
